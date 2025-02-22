@@ -7,22 +7,27 @@ import (
 	"sync"
 )
 
+const (
+	numRandomNumbers = 10
+	maxRandomNumber  = 101
+	stopSignal       = 101
+	stopCondition    = 10201
+)
+
 func main() {
 	var wg sync.WaitGroup
 	sendRandNum := make(chan int)
 	sendDoubleNum := make(chan int)
-	func() {
-		wg.Add(2)
-		go createTenRandomNum(sendRandNum, &wg)
-		go doubleRandomNum(sendRandNum, sendDoubleNum, &wg)
-	}()
+	wg.Add(2)
+	go createTenRandomNum(sendRandNum, &wg)
+	go doubleRandomNum(sendRandNum, sendDoubleNum, &wg)
 	go func() {
 		wg.Wait()
 		close(sendRandNum)
 		close(sendDoubleNum)
 	}()
 	for num := range sendDoubleNum {
-		if num == 10201 {
+		if num == stopCondition {
 			break
 		}
 		fmt.Println(num)
@@ -32,11 +37,11 @@ func main() {
 func createTenRandomNum(sendNum chan int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var randNum int
-	for i := 0; i < 10; i++ {
-		randNum = rand.Intn(101)
+	for i := 0; i < numRandomNumbers; i++ {
+		randNum = rand.Intn(maxRandomNumber)
 		sendNum <- int(randNum)
 	}
-	sendNum <- int(101)
+	sendNum <- int(stopSignal)
 }
 
 func doubleRandomNum(getNum chan int, sendDoubleNum chan int, wg *sync.WaitGroup) {
