@@ -15,7 +15,7 @@ type Config struct {
 type VerifyConfig struct {
 	Email    string
 	Password string
-	Host string
+	Host     string
 }
 
 type StatusCodes struct {
@@ -26,17 +26,33 @@ type StatusCodes struct {
 func LoadConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Panic("Error while loading .env file, using default config")
+		log.Println("Error while loading .env file, using default config")
 	}
+	envParams := LoadEnv()
 	return &Config{
 		Verify: VerifyConfig{
-			Email:    os.Getenv("Email"),
-			Password: os.Getenv("Pswd"),
-			Host:     os.Getenv("Host"),
+			Email:    envParams["Email"],
+			Password: envParams["Pswd"],
+			Host:     envParams["Host"],
 		},
 		StatusResponce: StatusCodes{
-			StatusCodeBadRequest: os.Getenv("StatusCodeBadRequest"),
-			StatusCodeOk:         os.Getenv("StatusCodeOk"),
+			StatusCodeBadRequest: envParams["StatusCodeBadRequest"],
+			StatusCodeOk:         envParams["StatusCodeOk"],
 		},
 	}
+}
+
+func LoadEnv() map[string]string {
+	envParams := make(map[string]string, 0)
+	envs := []string{"Email", "Pswd", "Host", "StatusCodeOk", "StatusCodeBadRequest"}
+	for _, value := range envs {
+		param, getResult := os.LookupEnv(value)
+		if !getResult {
+			log.Printf("%s can't get from env\n", param)
+			envParams[param] = ""
+		} else {
+			envParams[param] = value
+		}
+	}
+	return envParams
 }

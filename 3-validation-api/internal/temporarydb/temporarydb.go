@@ -55,7 +55,7 @@ func (db *TemporaryDb) RegisteryAcc(email *string) (string, error) {
 func (db *TemporaryDb) ReadFile() *[]byte {
 	file, err := os.ReadFile(fileName)
 	if err != nil {
-		log.Panic(err.Error())
+		log.Println(err.Error())
 	}
 	return &file
 }

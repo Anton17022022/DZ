@@ -36,11 +36,13 @@ func (handler *VerifyHandler) Send() http.HandlerFunc {
 		body, err := req.HandelBody[SendRequest](&w, r, &handler.StatusResponce)
 		if err != nil {
 			res.Json(&w, err.Error(), handler.StatusResponce.StatusCodeBadRequest)
+			return
 		} else {
 
 			hash, err := handler.Db.RegisteryAcc(&body.Email)
 			if err != nil {
 				res.Json(&w, err.Error(), handler.StatusResponce.StatusCodeBadRequest)
+				return
 			}
 
 			e := &email.Email{
@@ -53,11 +55,10 @@ func (handler *VerifyHandler) Send() http.HandlerFunc {
 
 			if err != nil {
 				res.Json(&w, err.Error(), handler.StatusResponce.StatusCodeBadRequest)
-			} else {
-
-				response := SendResponse{}
-				res.Json(&w, response, handler.StatusResponce.StatusCodeOk)
+				return
 			}
+			response := SendResponse{}
+			res.Json(&w, response, handler.StatusResponce.StatusCodeOk)
 		}
 	}
 }
