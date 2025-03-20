@@ -25,6 +25,6 @@ func (log *MiddlewareLoging) Logging(next http.Handler) http.Handler {
 			StatusCode:     http.StatusOK,
 		}
 		next.ServeHTTP(wrapper, r)
-		log.Log.Println(wrapper.StatusCode, r.Method, r.URL.Path, time.Since(start))
+		log.Log.Println(wrapper.StatusCode, r.Method, r.URL.Path, time.Since(start), r.UserAgent(), r.URL.Query())
 	})
 }
